@@ -19,6 +19,29 @@
 
 #include "hardware.h"
 
+//
+// Which camera setup is this controlling?
+//
+// Sky Camera?  do #define SKY_CAMERA, and #undef VIDEO_CAMERA
+// Video Camera?  fo #define VIDEO_CAMERA and #under SKY_CAMERA
+
+#define SKY_CAMERA
+#undef VIDEO_CAMERA
+
+#ifdef SKY_CAMERA
+
+const boolean use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
+const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
+const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
+
+// Size of camera pulses
+const int num_camera_pulses = 1;
+const unsigned long camera_pulse_width = 1000L*60L*20L; // 20 minutes
+const unsigned long camera_pulse_gap = 0;
+#endif
+
+#ifdef VIDEO_CAMERA
+
 const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
 const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
@@ -27,12 +50,18 @@ const int piezo_pulse_width = 500; // How long the sound has to be constantly ab
 const int window_test_period = 200;
 
 // Size of camera pulses
-const int num_camera_pulses = 10;
-const int camera_pulse_width = 100;
-const int camera_pulse_gap = 100;
+const int num_camera_pulses = 1;
+const unsigned long camera_pulse_width = 500;
+const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 20 minutes!
+
+#endif
+
+// How long to wait between checking whether we're in a launch period, in msec
+const int window_test_period = 200;
 
 // Launch windows
 // ... are defined in signals.cpp right now
+
 
 #endif // __CONFIG_H__
 
