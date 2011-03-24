@@ -24,6 +24,15 @@
 typedef enum { no_activity = 0, window_is_closed, window_is_open, cameras_are_waiting, cameras_are_firing } status_e;
 
 /**
+ * Begin signals
+ *
+ * Do any setup work that the signals need before they get started.
+ *
+ * @return true if the test switch is engaged
+ */
+extern void signals_begin(void);
+
+/**
  * Test switch on?
  *
  * @return true if the test switch is engaged
@@ -59,8 +68,6 @@ extern boolean sound_is_on(void);
 extern void set_camera_pins(int state);
 
 /**
- * Set LED status
- *
  * Display the program's status on the LED's.  Note that the status LED's retain
  * their value, so not all the status needs to be send every time.  Just send the
  * things that have changed.
@@ -70,8 +77,6 @@ extern void set_camera_pins(int state);
 extern void set_status(status_e status);
 
 /**
- * Set LED status
- *
  * Convenience function to set TWO status events at the same time
  *
  * @param status1 One status event to set
@@ -80,11 +85,14 @@ extern void set_status(status_e status);
 extern void set_status(status_e status1, status_e status2);
 
 /**
- * Start listening
- *
  * Start listening for the piezo.  Call this before any calls to is_sound_on()
  */
 extern void start_listening(void);
+
+/**
+ * Listen for configuration to come from the serial port
+ */
+void listen_for_serial_configuration(void);
 
 #endif // __SIGNALS_H__
 

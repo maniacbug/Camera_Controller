@@ -24,10 +24,56 @@
  * This is the main file of the sketch.  It contains only the setup and loop logic.
  */
 
+#include <SPI.h>
+#include <RTClib.h>
+#include <MemoryFree.h>
 #include "debug.h"
 #include "hardware.h"
 #include "signals.h"
 #include "config.h"
+
+/*************************************************************/
+
+#ifdef FAKE_PIEZO
+#include <MsTimer2.h>
+#endif
+
+/*************************************************************/
+
+#ifdef TEST_WINDOWS
+#include "windows.h"
+window_c test_windows[] =
+{
+    window_c( 2,5 ),
+    window_c( 10,40 ),
+    window_c( 50,60 )
+};
+const int num_test_windows = sizeof(test_windows)/sizeof(window_c);
+
+window_c* windows = test_windows;
+int num_windows = num_test_windows;
+#else
+#include "sts134_windows.h"
+#endif
+
+/*************************************************************/
+
+#ifdef SERIAL_DEBUG
+#include "WProgram.h"
+int Serial_putc( char c, FILE *t)
+{
+    Serial.write( c );
+}
+
+void Printf_setup(void)
+{
+    fdevopen( &Serial_putc, 0);
+}
+#endif
+
+/*************************************************************/
+
+RTC_DS3234 RTC(8);
 
 void setup(void)
 {
@@ -52,12 +98,54 @@ void setup(void)
         digitalWrite(camera_pin[i],LOW);
     }
 
+    // Setup RTC
+    SPI.begin();
+    RTC.begin();
+
 #ifdef SERIAL_DEBUG
     Serial.begin(9600);
     Printf_setup();
-    printf("Camera_Controller_3\r\nSERIAL_DEBUG enabled\r\n");
+    printf_P(PSTR("Camera_Controller_3\r\nSERIAL_DEBUG enabled\r\n"));
+    printf_P(PSTR("Free memory: %i\r\n"),freeMemory());
+    printf_P(PSTR("\r\nConfiguration:\r\npiezo: %i thr=%i pulse=%i\r\ncamera pulses: %i wid=%lu gap=%lu\n\r"),
+             use_piezo, piezo_threshold, piezo_pulse_width, num_camera_pulses,camera_pulse_width, camera_pulse_gap );
+
+    // Test switch must be OPEN before starting.  If it's CLOSED on startup, that means we want to send configuration
+    // to the unit via serial port
+    if ( test_switch_on() )
+    {
+        listen_for_serial_configuration();
+    }
 #endif
+
+#ifdef TEST_WINDOWS
+    // We need to offset all the windows by the program start time,
+    // while we're testing.
+    DateTime program_start_time = RTC.now();
+    i = num_windows;
+    while(i--)
+        windows[i].add(program_start_time);
+#endif
+
+#ifdef SERIAL_DEBUG
+    char buf[25];
+    printf_P(PSTR("\r\nCurrent time: %s\n\rWindows:\n\r"),program_start_time.toString(buf,25));
+
+    i = num_windows;
+    while(i--)
+    {
+        printf_P(PSTR("%02i: open %s "),i,windows[i].open.toString(buf,25));
+        printf_P(PSTR("plane %s "),windows[i].plane.toString(buf,25));
+        printf_P(PSTR("close %s\r\n"),windows[i].close.toString(buf,25));
+    }
+    printf_P(PSTR("OK\r\n"));
+#endif
+
+    // Do any setup the signals need.
+    signals_begin();
 }
+
+/*************************************************************/
 
 void loop(void)
 {
@@ -80,10 +168,13 @@ void loop(void)
                 delay(camera_pulse_gap);
             }
             set_status(cameras_are_waiting);
+            start_listening();
         }
     }
     set_status(window_is_closed);
 }
+
+/*************************************************************/
 
 /**
  * Alternate loop() to test the hardware test rig

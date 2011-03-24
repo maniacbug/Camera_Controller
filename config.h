@@ -18,6 +18,7 @@
 #define __CONFIG_H__
 
 #include "hardware.h"
+#include "windows.h"
 
 //
 // Which camera setup is this controlling?
@@ -25,8 +26,9 @@
 // Sky Camera?  do #define SKY_CAMERA, and #undef VIDEO_CAMERA
 // Video Camera?  fo #define VIDEO_CAMERA and #under SKY_CAMERA
 
-#define SKY_CAMERA
+#undef SKY_CAMERA
 #undef VIDEO_CAMERA
+#define TEST_CAMERA
 
 #ifdef SKY_CAMERA
 
@@ -46,9 +48,6 @@ const boolean use_piezo = true; // whether we need to wait for the sound (true) 
 const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
 
-// How long to wait between checking whether we're in a launch period, in msec
-const int window_test_period = 200;
-
 // Size of camera pulses
 const int num_camera_pulses = 1;
 const unsigned long camera_pulse_width = 500;
@@ -56,33 +55,113 @@ const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 2
 
 #endif
 
+#ifdef TEST_CAMERA
+
+const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
+const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
+const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
+
+// Size of camera pulses
+const int num_camera_pulses = 12;
+const unsigned long camera_pulse_width = 250;
+const unsigned long camera_pulse_gap = 250;
+
+#endif
+
+#ifdef FAKE_PIEZO
+const int fake_piezo_on_at = 20; // seconds from start of sketch
+const int fake_piezo_off_at = 30; // seconds from start of sketch
+#endif
+
 // How long to wait between checking whether we're in a launch period, in msec
 const int window_test_period = 200;
 
 // Launch windows
-// ... are defined in signals.cpp right now
 
+// Currently defined in PDE
+extern window_c* windows;
+extern int num_windows;
 
 #endif // __CONFIG_H__
 
 /*
-How to test:
 
-1. Launch/reset
-2. Look for window open status @ 2sec
-3. Press & hold fake piezo
-4. Look for camera firing status after 0.5sec
-5. Release fake piezo
-5. Look for 10 fake camera pulses @ 100msec to continue
-6. Look for window and firing status off after camera done
-7. Look for window open status @ 10sec
-8. Repeat piezo test as many times as possible, looking for firing status off and window status on after each time
-9. Look for final window status off
-10. Press and hold test button
-11. Look for test mode and window status led
-12. Repeat piezo test a few times
-13. Release test button
-14. Look for all status off
+******** Successful test with FAKE_PIEZO, TEST_WINDOWS, and SERIAL_DEBUG looks like this:
+
+Camera_Controller_3
+SERIAL_DEBUG enabled
+Current time: Mar 22 2011 21:20:54
+02: open Mar 22 2011 21:21:44 plane Mar 22 2011 21:21:49 close Mar 22 2011 21:21:54
+01: open Mar 22 2011 21:21:04 plane Mar 22 2011 21:21:19 close Mar 22 2011 21:21:34
+00: open Mar 22 2011 21:20:56 plane Mar 22 2011 21:20:57 close Mar 22 2011 21:20:59
+Mar 22 2011 21:20:57: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:20:57: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:20:59: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:21:05: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:05: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:14: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:21:21: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:21: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:21:27: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:34: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:21:45: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:45: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:21:54: Test OFF Window CLOSED Cameras WAITING
+
+Super tricky guy sez...  DS3234 has two alarms.  Could use those little guys to control the fake piezo!
+
+******** Successful test with only TEST_WINDOWS and SERIAL_DEBUG, and never tripping the piezo:
+
+Camera_Controller_3
+SERIAL_DEBUG enabled
+Current time: Mar 22 2011 21:36:02
+02: open Mar 22 2011 21:36:52 plane Mar 22 2011 21:36:57 close Mar 22 2011 21:37:02
+01: open Mar 22 2011 21:36:12 plane Mar 22 2011 21:36:27 close Mar 22 2011 21:36:42
+00: open Mar 22 2011 21:36:04 plane Mar 22 2011 21:36:05 close Mar 22 2011 21:36:07
+Mar 22 2011 21:36:05: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:36:05: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:36:07: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:36:13: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:36:13: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:36:42: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:36:53: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:36:53: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:37:02: Test OFF Window CLOSED Cameras WAITING
+
+******** Successful test with only TEST_WINDOWS and SERIAL_DEBUG, and holding the piezo the entire time
+
+Camera_Controller_3
+SERIAL_DEBUG enabled
+Current time: Mar 22 2011 21:37:55
+02: open Mar 22 2011 21:38:45 plane Mar 22 2011 21:38:50 close Mar 22 2011 21:38:55
+01: open Mar 22 2011 21:38:05 plane Mar 22 2011 21:38:20 close Mar 22 2011 21:38:35
+00: open Mar 22 2011 21:37:57 plane Mar 22 2011 21:37:58 close Mar 22 2011 21:38:00
+Mar 22 2011 21:37:58: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:37:58: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:37:58: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:04: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:04: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:38:06: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:06: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:06: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:12: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:12: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:18: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:18: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:24: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:24: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:31: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:31: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:37: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:37: Test OFF Window CLOSED Cameras WAITING
+Mar 22 2011 21:38:46: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:46: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:46: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:52: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:52: Test OFF Window OPEN Cameras FIRING
+Mar 22 2011 21:38:58: Test OFF Window OPEN Cameras WAITING
+Mar 22 2011 21:38:58: Test OFF Window CLOSED Cameras WAITING
+
 */
 
 // vim:ci:sw=4 sts=4

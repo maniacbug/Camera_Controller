@@ -14,11 +14,14 @@
  */
 
 #include <WProgram.h>
+#include <avr/pgmspace.h>
+#include <RTClib.h>
 #include <limits.h>
 #include "hardware.h"
 #include "config.h"
 #include "signals.h"
 #include "debug.h"
+#include "windows.h"
 
 #ifdef FAKE_CLOCK
 typedef unsigned long time_t;
@@ -39,6 +42,38 @@ window windows[] = { { 1000,5000 }, { 10000,25000 } };
 const int num_windows = sizeof(windows)/sizeof(window);
 #endif
 
+#ifdef FAKE_PIEZO
+#include <MsTimer2.h>
+
+unsigned long fake_piezo_msec_to_on = fake_piezo_on_at * 1000L;
+unsigned long fake_piezo_msec_to_off = fake_piezo_off_at * 1000L;
+volatile boolean fake_piezo_on = false;
+
+void fake_piezo_isr(void)
+{
+    // This fires once per msec.  decrement the msec remaining counter, and act
+    // if they hit zero.
+
+    if ( ! fake_piezo_msec_to_on-- )
+        fake_piezo_on = true;
+    if ( ! fake_piezo_msec_to_off--)
+    {
+        fake_piezo_on = false;
+        MsTimer2::stop();
+    }
+}
+
+#endif
+
+void signals_begin(void)
+{
+    // Do any startup stuff we need here that is related to signals
+#ifdef FAKE_PIEZO
+    MsTimer2::set(1,fake_piezo_isr);
+    MsTimer2::start();
+#endif
+}
+
 boolean test_switch_on(void)
 {
     return ( digitalRead(test_sw_pin) == switch_closed_value );
@@ -53,28 +88,28 @@ void await_window_open(void)
     {
         // If the test mode switch is fired, the window is forced open
         done = test_switch_on();
-        
-        time_t now = time_now();
-        time_t time_to_next_open = time_t_max;
-        
-        // Loop through the windows, see if we're in a window or if now, 
-        // how much longer must we wait        
+
+        uint32_t now = RTC.now().unixtime();
+        uint32_t time_to_next_open = ULONG_MAX;
+
+        // Loop through the windows, see if we're in a window or if now,
+        // how much longer must we wait
         int i = num_windows;
         while (i-- && !done)
         {
-            if ( now > windows[i].open && now < windows[i].close )
+            if ( now > windows[i].open.unixtime() && now < windows[i].close.unixtime() )
             {
                 done = true;
                 time_to_next_open = 0;
             }
-            else if ( now < windows[i].open )
-                time_to_next_open = min(windows[i].open - now,time_to_next_open);
+            else if ( now < windows[i].open.unixtime() )
+                time_to_next_open = min(windows[i].open.unixtime() - now,time_to_next_open);
         }
-        
+
         // wait for a little while, either until the window is due to open or
         // the longest amount of time has passed before we should look again
-        unsigned long wait_length = min(time_to_next_open,window_test_period);
-        delay( wait_length );
+        unsigned long wait_length = min(time_to_next_open,window_test_period / 1000);
+        delay( wait_length * 1000L );
     }
 }
 
@@ -84,11 +119,11 @@ boolean window_open(void)
     boolean result = test_switch_on();
 
     // loop through all the windows to see if we're open now.
-    time_t now = time_now();
+    uint32_t now = RTC.now().unixtime();
     int i = num_windows;
     while (i-- && !result)
     {
-        if ( now > windows[i].open && now < windows[i].close )
+        if ( now > windows[i].open.unixtime() && now < windows[i].close.unixtime() )
         {
             result = true;
             break;
@@ -112,6 +147,9 @@ void start_listening(void)
 
 boolean sound_is_on(void)
 {
+#ifdef FAKE_PIEZO
+    return fake_piezo_on;
+#endif
     boolean reading = analogRead(piezo_pin) > piezo_threshold;
 
     // If the switch changed, due to bounce or pressing...
@@ -163,6 +201,17 @@ void set_status(status_e status)
     digitalWrite(status_led_pin[0],test_switch_on()?led_on_value:led_off_value);
     digitalWrite(status_led_pin[1],window_open?led_on_value:led_off_value);
     digitalWrite(status_led_pin[2],cameras_firing?led_on_value:led_off_value);
+
+#ifdef SERIAL_DEBUG
+    DateTime now = RTC.now();
+    char buffer[25];
+    printf_P(PSTR("%s: Test %s Window %s Cameras %s\n\r"),
+             now.toString(buffer,25),
+             test_switch_on()?"ON":"OFF",
+             window_open?"OPEN":"CLOSED",
+             cameras_firing?"FIRING":"WAITING"
+            );
+#endif
 }
 
 void set_status(status_e status1, status_e status2)
@@ -171,4 +220,56 @@ void set_status(status_e status1, status_e status2)
     set_status(status2);
 }
 
+void listen_for_serial_configuration(void)
+{
+    printf_P(PSTR("Test switch CLOSED.  Listening for configuration...  Open test switch to continue\r\n"));
+    printf_P(PSTR("To set date, send yymmddD\r\nTo set time, send hhmmssT\r\n"));
+    uint8_t inbuffer[25];
+    uint8_t* curbuf = inbuffer;
+    uint8_t* endbuf = inbuffer + 24;
+    DateTime now, adjusted;
+    char buf[25];
+    while ( test_switch_on() )
+    {
+        while (Serial.available() && curbuf < endbuf)
+        {
+            int c = Serial.read();
+            switch (c)
+            {
+            case 'T':
+                *curbuf = 0;
+                curbuf = inbuffer;
+
+                now = RTC.now();
+                adjusted = DateTime(
+                               now.year(),now.month(),now.day(),
+                               10 * (inbuffer[0] - '0') + inbuffer[1] - '0',
+                               10 * (inbuffer[2] - '0') + inbuffer[3] - '0',
+                               10 * (inbuffer[4] - '0') + inbuffer[5] - '0'
+                           );
+                RTC.adjust(adjusted);
+                printf_P(PSTR("New time: %s\n\r"),adjusted.toString(buf,25));
+
+                break;
+            case 'D':
+                *curbuf = 0;
+                curbuf = inbuffer;
+
+                now = RTC.now();
+                adjusted = DateTime(
+                               10 * (inbuffer[0] - '0') + inbuffer[1] - '0',
+                               10 * (inbuffer[2] - '0') + inbuffer[3] - '0',
+                               10 * (inbuffer[4] - '0') + inbuffer[5] - '0',
+                               now.hour(),now.minute(),now.second()
+                           );
+                RTC.adjust(adjusted);
+                printf_P(PSTR("New time: %s\n\r"),adjusted.toString(buf,25));
+
+                break;
+            default:
+                *curbuf++ = c;
+            }
+        }
+    }
+}
 // vim:ci:sw=4 sts=4 ft=cpp

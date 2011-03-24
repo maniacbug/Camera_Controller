@@ -7,3 +7,12 @@ It monitors a real-time clock for precision and persistence.  During an open
 window, it listens for sustained loud noise on a piezo sensor to trigger the
 cameras.  When sufficient noise is heard, it triggers a configurable
 series of pulses to any number of cameras.
+
+To use this, you'll need these libraries.  To get them, open your sketch folder in
+a terminal window and type these commands:
+
+mkdir -p libraries
+cd libraries
+git clone git://github.com/maniacbug/RTClib.git 
+git clone git://github.com/maniacbug/MemoryFree.git
+wget http://www.arduino.cc/playground/uploads/Main/MsTimer2.zip && unzip MsTimer2.zip

@@ -1,8 +1,6 @@
-# wget -O - http://spaceflightnow.com/shuttle/sts134/fdf/134windows.html | html2text -width 300 | gawk -f launch_transform.awk -v name=sts134 > sts134_windows.cpp
-
 function trim0(str)
 {
-  return gensub(/0([1-9])/," \\1","g",str)
+  return gensub(/0([0-9])/," \\1","g",str)
 }
 
 BEGIN {
@@ -10,7 +8,7 @@ BEGIN {
   OFS = " "
   print "#include \"windows.h\""
   print "// Launch window definitions for mission #" name
-  print "window " name "_windows[] = { ";
+  print "window_c " name "_windows[] = { ";
 }
 
 /3$/ {
@@ -23,13 +21,13 @@ BEGIN {
   if (j>0)
   {
     ORS=","
-    print "{ {" trim0($j) "}"; ++j
-    print "{" trim0($j); ++j
-    print $j "}"; ++j
-    print "{" trim0($j); ++j
-    print $j "}"; ++j
-    print "{" trim0($j); ++j
-    print $j "} }"; ++j
+    print "    window_c ( " trim0($j) ; ++j
+    print trim0($j); ++j
+    print $j; ++j
+    print trim0($j); ++j
+    print $j; ++j
+    print trim0($j); ++j
+    print $j " )"; ++j
     ORS="\n"
     print ""
   }
@@ -37,5 +35,5 @@ BEGIN {
 
 END {
   print "};"
-  print "const int num_" name "_windows = sizeof(" name "_windows)/sizeof(window);"
+  print "const int num_" name "_windows = sizeof(" name "_windows)/sizeof(window_c);"
 }

@@ -15,9 +15,10 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#undef SERIAL_DEBUG
+#define SERIAL_DEBUG
 #undef STEP_TIME
-#define FAKE_CLOCK
+#undef FAKE_CLOCK
+#define TEST_WINDOWS
 
 #ifdef SERIAL_DEBUG
 #define IF_SERIAL_DEBUG(x) (x)
