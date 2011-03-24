@@ -1,0 +1,18 @@
+rule LaunchWindow
+{
+  Always $(<) ;
+  Depends $(<) : $(>) ;
+  Depends all : $(<) ;
+}
+
+actions LaunchWindow
+{
+  echo $(<)
+  wget -O - $(URL) | html2text -width 300 | gawk -f launch_transform.awk -v name=$(NAME) > $(<) 
+}
+
+TARGET = sts134_windows.h ;
+
+LaunchWindow $(TARGET) ; 
+URL on $(TARGET)  = "http://spaceflightnow.com/shuttle/sts134/fdf/134windows.html" ;
+NAME on $(TARGET) = sts134 ;
