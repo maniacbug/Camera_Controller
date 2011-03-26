@@ -22,6 +22,7 @@
 #include "signals.h"
 #include "debug.h"
 #include "windows.h"
+#include "logger.h"
 
 #ifdef FAKE_CLOCK
 typedef unsigned long time_t;
@@ -202,16 +203,15 @@ void set_status(status_e status)
     digitalWrite(status_led_pin[1],window_open?led_on_value:led_off_value);
     digitalWrite(status_led_pin[2],cameras_firing?led_on_value:led_off_value);
 
-#ifdef SERIAL_DEBUG
-    DateTime now = RTC.now();
-    char buffer[25];
-    printf_P(PSTR("%s: Test %s Window %s Cameras %s\n\r"),
-             now.toString(buffer,25),
-             test_switch_on()?"ON":"OFF",
-             window_open?"OPEN":"CLOSED",
-             cameras_firing?"FIRING":"WAITING"
-            );
-#endif
+    uint8_t status_bits = 0;
+    if ( test_switch_on() )
+        status_bits |= B100;
+    if ( window_open )
+        status_bits |= B10;
+    if ( cameras_firing )
+        status_bits |= B1;
+
+    log_status( status_bits );
 }
 
 void set_status(status_e status1, status_e status2)
@@ -265,6 +265,9 @@ void listen_for_serial_configuration(void)
                 RTC.adjust(adjusted);
                 printf_P(PSTR("New time: %s\n\r"),adjusted.toString(buf,25));
 
+                break;
+            case 'E':
+                log_playback();
                 break;
             default:
                 *curbuf++ = c;

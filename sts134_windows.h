@@ -1,6 +1,7 @@
 #include "windows.h"
 // Launch window definitions for mission #sts134
-window_c sts134_windows[] = { 
+window_c sts134_windows[] =
+{
     window_c (  4,19,11, 7,43,56,PM, 7,48,56,PM, 7,53,56,PM ),
     window_c (  4,20,11, 7,18,13,PM, 7,23,13,PM, 7,28,13,PM ),
     window_c (  4,21,11, 6,55,42,PM, 7, 0,42,PM, 7, 5,42,PM ),

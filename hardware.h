@@ -16,6 +16,7 @@
 #define __HARDWARE_H__
 
 #include <WProgram.h>
+#include <RTClib.h>
 
 /**
  * Mode test switch

@@ -27,10 +27,12 @@
 #include <SPI.h>
 #include <RTClib.h>
 #include <MemoryFree.h>
+#include <EEPROM.h>
 #include "debug.h"
 #include "hardware.h"
 #include "signals.h"
 #include "config.h"
+#include "logger.h"
 
 /*************************************************************/
 
@@ -58,8 +60,6 @@ int num_windows = num_test_windows;
 
 /*************************************************************/
 
-#ifdef SERIAL_DEBUG
-#include "WProgram.h"
 int Serial_putc( char c, FILE *t)
 {
     Serial.write( c );
@@ -69,7 +69,6 @@ void Printf_setup(void)
 {
     fdevopen( &Serial_putc, 0);
 }
-#endif
 
 /*************************************************************/
 
@@ -103,12 +102,9 @@ void setup(void)
     RTC.begin();
 
 #ifdef SERIAL_DEBUG
-    Serial.begin(9600);
+    Serial.begin(57600);
     Printf_setup();
     printf_P(PSTR("Camera_Controller_3\r\nSERIAL_DEBUG enabled\r\n"));
-    printf_P(PSTR("Free memory: %i\r\n"),freeMemory());
-    printf_P(PSTR("\r\nConfiguration:\r\npiezo: %i thr=%i pulse=%i\r\ncamera pulses: %i wid=%lu gap=%lu\n\r"),
-             use_piezo, piezo_threshold, piezo_pulse_width, num_camera_pulses,camera_pulse_width, camera_pulse_gap );
 
     // Test switch must be OPEN before starting.  If it's CLOSED on startup, that means we want to send configuration
     // to the unit via serial port
@@ -117,6 +113,25 @@ void setup(void)
         listen_for_serial_configuration();
     }
 #endif
+
+    // Always playback the old logs
+    log_playback();
+
+    // Start a new logging session
+    log_begin();
+
+    // Log current configuration
+    uint8_t config_list[8];
+    uint8_t* config_ptr = config_list;
+    *config_ptr++ = freeMemory() & 0xff;
+    *config_ptr++ = freeMemory() >> 8;
+    *config_ptr++ = use_piezo;
+    *config_ptr++ = piezo_threshold;
+    *config_ptr++ = piezo_pulse_width;
+    *config_ptr++ = num_camera_pulses;
+    *config_ptr++ = camera_pulse_width;
+    *config_ptr++ = camera_pulse_gap;
+    log_config(config_list,8);
 
 #ifdef TEST_WINDOWS
     // We need to offset all the windows by the program start time,
@@ -129,7 +144,7 @@ void setup(void)
 
 #ifdef SERIAL_DEBUG
     char buf[25];
-    printf_P(PSTR("\r\nCurrent time: %s\n\rWindows:\n\r"),program_start_time.toString(buf,25));
+    printf_P(PSTR("Windows:\n\r"),program_start_time.toString(buf,25));
 
     i = num_windows;
     while(i--)
@@ -151,7 +166,7 @@ void loop(void)
 {
     await_window_open();
 
-    set_status(window_is_open, cameras_are_waiting);
+    set_status(window_is_open);
     start_listening();
     while ( window_open() || test_switch_on() )
     {
