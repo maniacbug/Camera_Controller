@@ -248,7 +248,7 @@ void listen_for_serial_configuration(void)
                                10 * (inbuffer[4] - '0') + inbuffer[5] - '0'
                            );
                 RTC.adjust(adjusted);
-                printf_P(PSTR("New time: %s\n\r"),adjusted.toString(buf,25));
+                log_set_time();
 
                 break;
             case 'D':
@@ -263,11 +263,14 @@ void listen_for_serial_configuration(void)
                                now.hour(),now.minute(),now.second()
                            );
                 RTC.adjust(adjusted);
-                printf_P(PSTR("New time: %s\n\r"),adjusted.toString(buf,25));
+                log_set_time();
 
                 break;
             case 'E':
                 log_playback();
+                break;
+            case 'C':
+                log_clear();
                 break;
             default:
                 *curbuf++ = c;

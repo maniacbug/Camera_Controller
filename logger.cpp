@@ -24,10 +24,12 @@ const uint16_t num_status_bits = 3;
 const uint16_t timestamp_mask = 0xffff << num_status_bits;
 const uint16_t status_mask = ~timestamp_mask;
 const uint16_t max_timestamp = ( timestamp_mask >> num_status_bits ) - 1;
+const uint16_t log_op_seenextword = 0;
 const uint16_t log_op_fulltime = 1;
 const uint16_t log_op_config = 2;
 const uint16_t log_op_done = 3;
 const uint16_t log_op_begin = 4;
+const uint16_t log_op_settime = 5;
 
 char log_status_string[] PROGMEM = "%04u %s: Test %s Window %s Cameras %s\n\r";
 char log_op_fulltime_string[] PROGMEM = "%04u %s: Current time\n\r";
@@ -35,6 +37,7 @@ char log_op_fulltime_string[] PROGMEM = "%04u %s: Current time\n\r";
 char log_op_config_string[] PROGMEM = "%04u Configuration\n\r";
 char log_op_done_string[] PROGMEM = "%04u OK\n\r";
 char log_op_begin_string[] PROGMEM = "%04u New run\n\r";
+char log_op_settime_string[] PROGMEM = "%04u Setting time\n\r";
 
 char log_playback_begin[] PROGMEM = "*** BEGIN LOG PLAYBACK ***\n\r";
 char log_playback_end[] PROGMEM = "*** END LOG PLAYBACK ***\n\r";
@@ -78,6 +81,13 @@ void log_status(uint8_t status)
 
     log_write( ( timestamp << num_status_bits ) | status);
     log_end();
+}
+
+void log_set_time(void)
+{
+    printf_P(log_op_settime_string,current_eeprom_address);
+    log_write(timestamp_mask | log_op_settime);
+    log_current_time();
 }
 
 // Log the current time
@@ -126,6 +136,13 @@ void log_begin(void)
     log_current_time();
 }
 
+void log_clear(void)
+{
+    current_eeprom_address = 0;
+    printf_P(PSTR("%04i Log cleared\n\r"),current_eeprom_address);
+    log_begin();
+}
+
 void log_playback(void)
 {
     current_eeprom_address = 0;
@@ -145,9 +162,13 @@ void log_playback(void)
             {
             case log_op_fulltime:
                 last_log_entry_time = log_read_32();
-                printf_P(log_op_fulltime_string,current_eeprom_address-2,DateTime(last_log_entry_time).toString(timeprintbuffer,25));
+                printf_P(log_op_fulltime_string,current_eeprom_address-6,DateTime(last_log_entry_time).toString(timeprintbuffer,25));
+                break;
+            case log_op_settime:
+                printf_P(log_op_settime_string,current_eeprom_address-2);
                 break;
             case log_op_config:
+                printf_P(log_op_config_string,current_eeprom_address-2);
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);

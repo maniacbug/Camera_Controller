@@ -101,18 +101,9 @@ void setup(void)
     SPI.begin();
     RTC.begin();
 
-#ifdef SERIAL_DEBUG
     Serial.begin(57600);
     Printf_setup();
     printf_P(PSTR("Camera_Controller_3\r\nSERIAL_DEBUG enabled\r\n"));
-
-    // Test switch must be OPEN before starting.  If it's CLOSED on startup, that means we want to send configuration
-    // to the unit via serial port
-    if ( test_switch_on() )
-    {
-        listen_for_serial_configuration();
-    }
-#endif
 
     // Always playback the old logs
     log_playback();
@@ -120,9 +111,15 @@ void setup(void)
     // Start a new logging session
     log_begin();
 
+    // Test switch must be OPEN before starting.  If it's CLOSED on startup, that means we want to send configuration
+    // to the unit via serial port
+    if ( test_switch_on() )
+        listen_for_serial_configuration();
+
     // Log current configuration
-    uint8_t config_list[8];
+    uint8_t config_list[25];
     uint8_t* config_ptr = config_list;
+    *config_ptr++ = 1; // config data version #
     *config_ptr++ = freeMemory() & 0xff;
     *config_ptr++ = freeMemory() >> 8;
     *config_ptr++ = use_piezo;
@@ -131,7 +128,7 @@ void setup(void)
     *config_ptr++ = num_camera_pulses;
     *config_ptr++ = camera_pulse_width;
     *config_ptr++ = camera_pulse_gap;
-    log_config(config_list,8);
+    log_config(config_list,config_ptr-config_list);
 
 #ifdef TEST_WINDOWS
     // We need to offset all the windows by the program start time,
