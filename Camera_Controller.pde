@@ -117,17 +117,18 @@ void setup(void)
         listen_for_serial_configuration();
 
     // Log current configuration
-    uint8_t config_list[25];
-    uint8_t* config_ptr = config_list;
+    uint16_t config_list[25];
+    uint16_t* config_ptr = config_list;
     *config_ptr++ = 1; // config data version #
-    *config_ptr++ = freeMemory() & 0xff;
-    *config_ptr++ = freeMemory() >> 8;
+    *config_ptr++ = freeMemory();
     *config_ptr++ = use_piezo;
     *config_ptr++ = piezo_threshold;
     *config_ptr++ = piezo_pulse_width;
     *config_ptr++ = num_camera_pulses;
-    *config_ptr++ = camera_pulse_width;
-    *config_ptr++ = camera_pulse_gap;
+    *config_ptr++ = camera_pulse_width & 0xffff;
+    *config_ptr++ = camera_pulse_width >> 16;
+    *config_ptr++ = camera_pulse_gap & 0xffff;
+    *config_ptr++ = camera_pulse_gap >> 16;
     log_config(config_list,config_ptr-config_list);
 
 #ifdef TEST_WINDOWS

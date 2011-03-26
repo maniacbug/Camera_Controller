@@ -34,13 +34,37 @@ const uint16_t log_op_settime = 5;
 char log_status_string[] PROGMEM = "%04u %s: Test %s Window %s Cameras %s\n\r";
 char log_op_fulltime_string[] PROGMEM = "%04u %s: Current time\n\r";
 //char log_op_config_string[] PROGMEM = "Configuration\n\r\tMemory: %i\r\n\tpiezo: %i thr=%i pulse=%i\r\ncamera pulses: %i wid=%lu gap=%lu\n\r";
-char log_op_config_string[] PROGMEM = "%04u Configuration\n\r";
+char log_op_config_string[] PROGMEM = "%04u Configuration: ";
 char log_op_done_string[] PROGMEM = "%04u OK\n\r";
 char log_op_begin_string[] PROGMEM = "%04u New run\n\r";
 char log_op_settime_string[] PROGMEM = "%04u Setting time\n\r";
 
 char log_playback_begin[] PROGMEM = "*** BEGIN LOG PLAYBACK ***\n\r";
 char log_playback_end[] PROGMEM = "*** END LOG PLAYBACK ***\n\r";
+
+char log_config_0[] PROGMEM = "ver=%i ";
+char log_config_1[] PROGMEM = "mem=%i ";
+char log_config_2[] PROGMEM = "pz?=%i ";
+char log_config_3[] PROGMEM = "pz/thr=%i ";
+char log_config_4[] PROGMEM = "pz/wid=%i ";
+char log_config_5[] PROGMEM = "#pulse=%i ";
+char log_config_6[] PROGMEM = "pulse/wid/lo=%i ";
+char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";
+char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
+char log_config_9[] PROGMEM = "pulse/gap/hi=%i\n\r";
+
+prog_char* log_config_strings[] = {
+  log_config_0,
+  log_config_1,
+  log_config_2,
+  log_config_3,
+  log_config_4,
+  log_config_5,
+  log_config_6,
+  log_config_7,
+  log_config_8,
+  log_config_9,
+};
 
 uint16_t current_eeprom_address = 0;
 uint32_t last_log_entry_time = 0;
@@ -52,6 +76,7 @@ void log_write_byte(uint8_t data);
 uint16_t log_read(void);
 void log_write_32(uint32_t data);
 uint32_t log_read_32(void);
+uint8_t log_read_byte(void);
 
 // Log the current status
 void log_status(uint8_t status)
@@ -110,17 +135,20 @@ void log_current_time(void)
 }
 
 // Log the supplied configuration
-void log_config(uint8_t* data, int len)
+void log_config(uint16_t* data, int len)
 {
     printf_P(log_op_config_string,current_eeprom_address);
 
     log_write(timestamp_mask | log_op_config);
-#if 0
-    // Config data is just saved as single bytes with a qty preceeding it
-    log_write_byte(len);
+    
+    // Config data is just saved as single entries with a qty preceeding it
+    log_write(len);
+    prog_char** current_message = log_config_strings;
     while (len--)
-        log_write_byte(*data++);
-#endif
+    {
+        printf_P(*current_message++,*data);
+        log_write(*data++);
+    }
     log_end();
 }
 
@@ -147,6 +175,8 @@ void log_playback(void)
 {
     current_eeprom_address = 0;
     last_log_entry_time = 0;
+    int len;
+    prog_char** current_message;
 
     // Read the initial value.  If the first value is NOT a 'begin', then we don't
     // even need to play back because this is not a valid log stream.
@@ -169,6 +199,12 @@ void log_playback(void)
                 break;
             case log_op_config:
                 printf_P(log_op_config_string,current_eeprom_address-2);
+#if 0
+                len = log_read();
+                current_message = log_config_strings;
+                while (len--)
+                    printf_P(*current_message++,log_read());
+#endif                
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);
@@ -221,6 +257,11 @@ void log_write(uint16_t data)
 void log_write_byte(uint8_t data)
 {
     EEPROM.write(current_eeprom_address++,data);
+}
+
+uint8_t log_read_byte(void)
+{
+    return EEPROM.read(current_eeprom_address++);
 }
 
 uint16_t log_read(void)

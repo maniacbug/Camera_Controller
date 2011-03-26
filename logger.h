@@ -13,7 +13,7 @@
 
 void log_status(uint8_t status);
 void log_current_time(void);
-void log_config(uint8_t* data, int len);
+void log_config(uint16_t* data, int len);
 void log_set_time(void);
 
 void log_playback(void);
