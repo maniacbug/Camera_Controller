@@ -43,24 +43,25 @@
 
 /*************************************************************/
 
-#ifdef TEST_WINDOWS
+#ifdef TEST_WINDOWS_SHORT
 #include "windows.h"
 
-window_c test_windows[] =
+window_c short_windows[] =
 {
     window_c( 2,5 ),
     window_c( 10,40 ),
     window_c( 50,60 )
 };
-const int num_test_windows = sizeof(test_windows)/sizeof(window_c);
+const int num_short_windows = sizeof(short_windows)/sizeof(window_c);
 
-window_c* windows = test_windows;
-int num_windows = num_test_windows;
-#else
-//#include "sts134_windows.h"
+window_c* windows = short_windows;
+int num_windows = num_short_windows;
 
-window_c now_windows[] =
+#elif defined(TEST_WINDOWS_LONG)
+
+window_c long_windows[] =
 {
+    //          DATE     OPEN        PLANE       TIME
     window_c (  3,27,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
     window_c (  3,27,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
     window_c (  3,28,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
@@ -68,13 +69,22 @@ window_c now_windows[] =
     window_c (  3,29,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
     window_c (  3,29,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
 };
-const int num_now_windows = sizeof(now_windows)/sizeof(window_c);
+const int num_long_windows = sizeof(long_windows)/sizeof(window_c);
 
-window_c* windows = now_windows;
-int num_windows = num_now_windows;
+window_c* windows = long_windows;
+int num_windows = num_long_windows;
+
+#else
+
+#include "sts134_windows.h"
+window_c* windows = sts134_windows;
+int num_windows = num_sts134_windows;
+
 #endif
 
 /*************************************************************/
+
+// Enable 'printf'
 
 int Serial_putc( char c, FILE *t)
 {
@@ -215,27 +225,6 @@ void loop(void)
         }
     }
     set_status(window_is_closed);
-}
-
-/*************************************************************/
-
-/**
- * Alternate loop() to test the hardware test rig
- */
-void rig_test(void)
-{
-    static uint8_t counter;
-    static int pin2_state;
-
-    digitalWrite(status_led_pin[0],digitalRead(test_sw_pin));
-    digitalWrite(status_led_pin[1],analogRead(piezo_pin)<512);
-    digitalWrite(status_led_pin[2],pin2_state);
-    digitalWrite(camera_pin[0],pin2_state^HIGH);
-
-    if ( ! counter++ )
-        pin2_state ^= HIGH;
-
-    delay(5);
 }
 
 // vim:ci:sw=4 sts=4 ft=cpp

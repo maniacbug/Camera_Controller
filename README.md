@@ -10,6 +10,11 @@ window, it listens for sustained loud noise on a piezo sensor to trigger the
 cameras.  When sufficient noise is heard, it triggers a configurable
 series of pulses to any number of cameras.
 
+## Known issues
+
+The piezo trigger does not work.  Be sure to set use_piezo = false in any
+configuration you want to test now.
+
 ## Installation 
 
 Download the latest archive into your sketch folder.  You'll also need certain
@@ -72,3 +77,16 @@ operation.
 
 Many debugging constants are included in debug.h.  These should not normally be 
 needed, but are included to troubleshoot various problems.
+
+## Launch windows
+
+The launch windows are maintained in sts134_windows.h. _.  I fetch them
+automatically from http://spaceflightnow.com/shuttle/sts134/fdf/134windows.html
+using a text transform toolchain.  It should not be necessary to regenerate
+this file--the .h file itself is included in the repository.  However, if you
+do want to generate it, you'll need these tools:  ftjam, wget, htmltext, & gawk.
+
+To test this with custom windows, the best thing to do is #define TEST_WINDOWS_LONG
+in debug.h, and then change the values of long_windows[] in Camera_Controller.pde.
+
+Be sure to #undef TEST_WINDOWS_LONG before using it for real launches! 
