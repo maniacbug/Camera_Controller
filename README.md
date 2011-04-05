@@ -58,7 +58,8 @@ A continuous log of operation is kept in the EEPROM.  This is useful for
 understanding what happened in the field.  Every time the unit is powered on,
 the entire log is printed to the Serial connection.  If users encounter any
 problems when using the unit, they should always plug the unit back into
-the computer, capture the logs, and send them for debugging.
+the computer, capture the logs, and send them for debugging.  Be sure to set
+your serial monitor to 57600 baud.
 
 ## Diagnostic Operation
 
