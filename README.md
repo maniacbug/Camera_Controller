@@ -23,11 +23,11 @@ Download the latest archive into your sketch folder.  You'll also need certain
 libraries To get them, open your sketch folder in a terminal window and type 
 these commands:
 
- mkdir -p libraries
- cd libraries
- git clone git://github.com/maniacbug/RTClib.git 
- git clone git://github.com/maniacbug/MemoryFree.git
- wget http://www.arduino.cc/playground/uploads/Main/MsTimer2.zip && unzip MsTimer2.zip
+* mkdir -p libraries
+* cd libraries
+* git clone git://github.com/maniacbug/RTClib.git 
+* git clone git://github.com/maniacbug/MemoryFree.git
+* wget http://www.arduino.cc/playground/uploads/Main/MsTimer2.zip && unzip MsTimer2.zip
 
 The last library is optional, and only needed if you ever #define FAKE_PIEZO. _.
 That is used for testing the operation of code that relies on the Piezo when there
@@ -67,10 +67,10 @@ The three status lights will stay on.  In this mode, the unit will accept
 input on the Serial connection to further configure it.  These commands are
 available:
 
-110401D		Sets the date to April 1st, 2011
-184559T		Sets the time to 18:45:59.  Time is in 24-hour time.
-C		Clears the log buffer
-E		Plays the log buffer back again
+* 110401D		Sets the date to April 1st, 2011
+* 184559T		Sets the time to 18:45:59.  Time is in 24-hour time.
+* C		Clears the log buffer
+* E		Plays the log buffer back again
 
 When you're done, open the test switch, and the unit will proceed into normal
 operation.
