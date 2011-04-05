@@ -65,12 +65,12 @@ const boolean use_piezo = true; // whether we need to wait for the sound (true) 
 
 // Focus pin
 const bool use_focus = true;
-const int focus_delay = 500; // Msec to hold focus high before shooting
+const int focus_delay = 2000; // Msec to hold focus high before shooting
 
 // Size of camera pulses
-const int num_camera_pulses = 12;
+const int num_camera_pulses = 10;
 const unsigned long camera_pulse_width = 250;
-const unsigned long camera_pulse_gap = 250;
+const unsigned long camera_pulse_gap = 1000;
 
 #endif
 
