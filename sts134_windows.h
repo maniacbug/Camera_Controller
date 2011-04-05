@@ -19,7 +19,9 @@ window_c sts134_windows[] =
     window_c (  5, 3,11, 2, 6,20,PM, 2,11,20,PM, 2,16,20,PM ),
     window_c (  5, 4,11, 1,44,28,PM, 1,45,38,PM, 1,50,38,PM ),
     window_c (  5, 5,11, 1,18, 6,PM, 1,23, 6,PM, 1,28, 6,PM ),
+    window_c (  5, 6,11,12,57,38,PM,12,57,24,PM, 1, 2,24,PM ),
     window_c (  5, 7,11,12,29,53,PM,12,34,53,PM,12,39,53,PM ),
+    window_c (  5, 8,11,12,10,35,PM,12, 9,11,PM,12,14,11,PM ),
     window_c (  5, 9,11,11,41,39,AM,11,46,39,AM,11,51,39,AM ),
 };
 const int num_sts134_windows = sizeof(sts134_windows)/sizeof(window_c);

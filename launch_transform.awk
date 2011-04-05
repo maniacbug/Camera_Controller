@@ -8,10 +8,11 @@ BEGIN {
   OFS = " "
   print "#include \"windows.h\""
   print "// Launch window definitions for mission #" name
-  print "window_c " name "_windows[] = { ";
+  print "window_c " name "_windows[] ="
+  print "{"
 }
 
-/3$/ {
+{
   j = 0
   for (i=1;i<=NF;i++)
     if ( match($i,/^[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9]$/) )
