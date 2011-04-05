@@ -151,7 +151,7 @@ void setup(void)
     *config_ptr++ = freeMemory();
     *config_ptr++ = use_piezo;
     *config_ptr++ = piezo_threshold;
-    *config_ptr++ = piezo_pulse_width;
+    *config_ptr++ = piezo_samples;
     *config_ptr++ = num_camera_pulses;
     *config_ptr++ = camera_pulse_width & 0xffff;
     *config_ptr++ = camera_pulse_width >> 16;

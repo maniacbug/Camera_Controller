@@ -12,8 +12,6 @@ series of pulses to any number of cameras.
 
 ## Known issues
 
-* The piezo trigger does not work.  Be sure to set use_piezo = false in any
-configuration you want to test now.
 * Pin 13 probably shouldn't be used as a camera pin!  That pin goes high at
 various times when downloading new sketches.
 

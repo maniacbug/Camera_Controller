@@ -46,7 +46,7 @@ char log_config_0[] PROGMEM = "ver=%i ";
 char log_config_1[] PROGMEM = "mem=%i ";
 char log_config_2[] PROGMEM = "pz?=%i ";
 char log_config_3[] PROGMEM = "pz/thr=%i ";
-char log_config_4[] PROGMEM = "pz/wid=%i ";
+char log_config_4[] PROGMEM = "pz/sam=%i ";
 char log_config_5[] PROGMEM = "#pulse=%i ";
 char log_config_6[] PROGMEM = "pulse/wid/lo=%i ";
 char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";

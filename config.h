@@ -33,8 +33,6 @@
 #ifdef SKY_CAMERA
 
 const boolean use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
-const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
-const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
 
 // Focus pin
 const bool use_focus = true;
@@ -49,8 +47,6 @@ const unsigned long camera_pulse_gap = 0;
 #ifdef VIDEO_CAMERA
 
 const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
-const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
-const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
 
 // Focus pin
 const bool use_focus = false;
@@ -65,9 +61,7 @@ const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 2
 
 #ifdef TEST_CAMERA
 
-const boolean use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
-const int piezo_threshold = 240; // 0-1024, how loud the sound has to be before the cameras fire
-const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
+const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
 
 // Focus pin
 const bool use_focus = true;
@@ -84,6 +78,9 @@ const unsigned long camera_pulse_gap = 250;
 const int fake_piezo_on_at = 20; // seconds from start of sketch
 const int fake_piezo_off_at = 30; // seconds from start of sketch
 #endif
+
+const int piezo_threshold = 300; // 0-1024, how loud the sound has to be before the cameras fire
+const int piezo_samples = 500; // Many samples to take and average out every time we test the piezo
 
 // How long to wait between checking whether we're in a launch period, in msec
 const int window_test_period = 200;

@@ -138,17 +138,11 @@ boolean window_open(void)
     return result;
 }
 
-boolean piezo_on = false;
-boolean piezo_previous = false;
-unsigned long piezo_edge_time = 0;
-
 void start_listening(void)
 {
-    piezo_previous = false;
-    piezo_on = false;
+    // Not currently used
 }
 
-// Debounce code from http://www.ladyada.net/learn/sensor/tilt.html
 
 boolean sound_is_on(void)
 {
@@ -170,25 +164,13 @@ boolean sound_is_on(void)
         items = 20;
     }
 #endif
-    boolean reading = analogRead(piezo_pin) > piezo_threshold;
+    long reading = 0;
+    int n = piezo_samples;
+    while (n--)
+        reading += analogRead(piezo_pin);
+    long value = reading / piezo_samples;
 
-    // If the switch changed, due to bounce or pressing...
-    if (reading != piezo_previous)
-    {
-        // reset the debouncing timer
-        piezo_edge_time = millis();
-    }
-
-    if ((millis() - piezo_edge_time) > piezo_pulse_width)
-    {
-        // whatever the switch is at, its been there for a long time
-        // so lets settle on it!
-        piezo_on = reading;
-    }
-    // Save the last reading so we keep a running tally
-    piezo_previous = reading;
-
-    return piezo_on;
+    return ( value > piezo_threshold );
 }
 
 void set_camera_pins(int state)
