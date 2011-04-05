@@ -25,6 +25,7 @@
  */
 
 #include <SPI.h>
+#include <Wire.h>
 #include <RTClib.h>
 #include <MemoryFree.h>
 #include <EEPROM.h>
@@ -44,6 +45,7 @@
 
 #ifdef TEST_WINDOWS
 #include "windows.h"
+
 window_c test_windows[] =
 {
     window_c( 2,5 ),
@@ -55,7 +57,21 @@ const int num_test_windows = sizeof(test_windows)/sizeof(window_c);
 window_c* windows = test_windows;
 int num_windows = num_test_windows;
 #else
-#include "sts134_windows.h"
+//#include "sts134_windows.h"
+
+window_c now_windows[] =
+{
+    window_c (  3,27,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
+    window_c (  3,27,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
+    window_c (  3,28,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
+    window_c (  3,28,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
+    window_c (  3,29,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
+    window_c (  3,29,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
+};
+const int num_now_windows = sizeof(now_windows)/sizeof(window_c);
+
+window_c* windows = now_windows;
+int num_windows = num_now_windows;
 #endif
 
 /*************************************************************/
@@ -72,7 +88,7 @@ void Printf_setup(void)
 
 /*************************************************************/
 
-RTC_DS3234 RTC(8);
+RTC_DS1307 RTC;
 
 void setup(void)
 {
@@ -86,7 +102,7 @@ void setup(void)
     while (i--)
     {
         pinMode(status_led_pin[i],OUTPUT);
-        digitalWrite(status_led_pin[i],led_off_value);
+        digitalWrite(status_led_pin[i],led_on_value);
     }
 
     // Setup camera pins
@@ -96,9 +112,11 @@ void setup(void)
         pinMode(camera_pin[i],OUTPUT);
         digitalWrite(camera_pin[i],LOW);
     }
+    pinMode(focus_pin,OUTPUT);
+    digitalWrite(focus_pin,LOW);
 
     // Setup RTC
-    SPI.begin();
+    Wire.begin();
     RTC.begin();
 
     Serial.begin(57600);
@@ -142,7 +160,7 @@ void setup(void)
 
 #ifdef SERIAL_DEBUG
     char buf[25];
-    printf_P(PSTR("Windows:\n\r"),program_start_time.toString(buf,25));
+    printf_P(PSTR("Windows:\n\r"));
 
     i = num_windows;
     while(i--)
@@ -171,6 +189,12 @@ void loop(void)
         if ( sound_is_on() || ! use_piezo )
         {
             set_status(cameras_are_firing);
+            
+            if (use_focus)
+            {
+              digitalWrite(focus_pin,HIGH);
+              delay(focus_delay);
+            }
 
             int i = num_camera_pulses;
             while (i--)
@@ -180,6 +204,12 @@ void loop(void)
                 set_camera_pins(LOW);
                 delay(camera_pulse_gap);
             }
+
+            if (use_focus)
+            {
+              digitalWrite(focus_pin,LOW);
+            }
+
             set_status(cameras_are_waiting);
             start_listening();
         }

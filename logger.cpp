@@ -199,7 +199,7 @@ void log_playback(void)
                 break;
             case log_op_config:
                 printf_P(log_op_config_string,current_eeprom_address-2);
-#if 0
+#if 1
                 len = log_read();
                 current_message = log_config_strings;
                 while (len--)

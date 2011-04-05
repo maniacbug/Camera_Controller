@@ -18,7 +18,7 @@
 #define SERIAL_DEBUG
 #undef STEP_TIME
 #undef FAKE_CLOCK
-#define TEST_WINDOWS
+#undef TEST_WINDOWS
 
 #ifdef SERIAL_DEBUG
 #define IF_SERIAL_DEBUG(x) (x)

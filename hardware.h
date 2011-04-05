@@ -17,6 +17,7 @@
 
 #include <WProgram.h>
 #include <RTClib.h>
+#include <RTC_DS1307.h>
 
 /**
  * Mode test switch
@@ -33,7 +34,7 @@ const int switch_closed_value = LOW;
  * For providing information about the current state of the device
  */
 
-const int status_led_pin[] = { 3,10,5 };  // on for test mode, listening and firing
+const int status_led_pin[] = { 12,10,8 };  // on for test mode, listening and firing
 const int num_status_led_pins = sizeof(status_led_pin)/sizeof(int);
 const int led_on_value = HIGH;
 const int led_off_value = LOW;
@@ -45,7 +46,8 @@ const int led_off_value = LOW;
  * remember to configure pulses for them in config.h
  */
 
-const int camera_pin[] = { A0 };
+const int focus_pin = 7;
+const int camera_pin[] = { 13 };
 const int num_camera_pins = sizeof(camera_pin)/sizeof(int);
 
 /**
@@ -65,7 +67,7 @@ const int piezo_pin = 1; // analog
  * For maintaining the actual time which we can use to accurately open and close launch windows
  */
 
-extern RTC_DS3234 RTC;
+extern RTC_DS1307 RTC;
 
 #endif //__HARDWARE_H__
 

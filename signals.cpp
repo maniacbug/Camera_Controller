@@ -73,6 +73,10 @@ void signals_begin(void)
     MsTimer2::set(1,fake_piezo_isr);
     MsTimer2::start();
 #endif
+
+  // Initialize the status LED's
+  set_status(no_activity);
+
 }
 
 boolean test_switch_on(void)
@@ -150,6 +154,21 @@ boolean sound_is_on(void)
 {
 #ifdef FAKE_PIEZO
     return fake_piezo_on;
+#endif
+
+#ifdef SERIAL_DEBUG_PIEZO
+    static int items = 20;
+    int readings = 1000;
+    long value = 0;
+    while ( readings-- )
+      value += analogRead(piezo_pin);
+    printf("%i ",value/1000);
+    delay(250);
+    if ( ! items-- )
+    {
+      printf("\n\r");
+      items = 20;
+    }
 #endif
     boolean reading = analogRead(piezo_pin) > piezo_threshold;
 

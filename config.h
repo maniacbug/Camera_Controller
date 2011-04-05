@@ -36,6 +36,10 @@ const boolean use_piezo = false; // whether we need to wait for the sound (true)
 const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
 
+// Focus pin
+const bool use_focus = true;
+const int focus_delay = 500; // Msec to hold focus high before shooting
+
 // Size of camera pulses
 const int num_camera_pulses = 1;
 const unsigned long camera_pulse_width = 1000L*60L*20L; // 20 minutes
@@ -48,6 +52,10 @@ const boolean use_piezo = true; // whether we need to wait for the sound (true) 
 const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
 
+// Focus pin
+const bool use_focus = false;
+const int focus_delay = 500; // Msec to hold focus high before shooting
+
 // Size of camera pulses
 const int num_camera_pulses = 1;
 const unsigned long camera_pulse_width = 500;
@@ -57,9 +65,13 @@ const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 2
 
 #ifdef TEST_CAMERA
 
-const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
-const int piezo_threshold = 512; // 0-1024, how loud the sound has to be before the cameras fire
+const boolean use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
+const int piezo_threshold = 240; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_pulse_width = 500; // How long the sound has to be constantly above the threshhold to count, in msec
+
+// Focus pin
+const bool use_focus = true;
+const int focus_delay = 500; // Msec to hold focus high before shooting
 
 // Size of camera pulses
 const int num_camera_pulses = 12;
