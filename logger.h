@@ -5,7 +5,7 @@
  modify it under the terms of the GNU General Public License
  version 2 as published by the Free Software Foundation.
  */
- 
+
 #ifndef __LOGGER_H__
 #define __LOGGER_H__
 

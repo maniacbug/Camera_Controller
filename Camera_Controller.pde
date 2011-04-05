@@ -199,11 +199,11 @@ void loop(void)
         if ( sound_is_on() || ! use_piezo )
         {
             set_status(cameras_are_firing);
-            
+
             if (use_focus)
             {
-              digitalWrite(focus_pin,HIGH);
-              delay(focus_delay);
+                digitalWrite(focus_pin,HIGH);
+                delay(focus_delay);
             }
 
             int i = num_camera_pulses;
@@ -217,7 +217,7 @@ void loop(void)
 
             if (use_focus)
             {
-              digitalWrite(focus_pin,LOW);
+                digitalWrite(focus_pin,LOW);
             }
 
             set_status(cameras_are_waiting);

@@ -53,17 +53,18 @@ char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";
 char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
 char log_config_9[] PROGMEM = "pulse/gap/hi=%i\n\r";
 
-prog_char* log_config_strings[] = {
-  log_config_0,
-  log_config_1,
-  log_config_2,
-  log_config_3,
-  log_config_4,
-  log_config_5,
-  log_config_6,
-  log_config_7,
-  log_config_8,
-  log_config_9,
+prog_char* log_config_strings[] =
+{
+    log_config_0,
+    log_config_1,
+    log_config_2,
+    log_config_3,
+    log_config_4,
+    log_config_5,
+    log_config_6,
+    log_config_7,
+    log_config_8,
+    log_config_9,
 };
 
 uint16_t current_eeprom_address = 0;
@@ -140,7 +141,7 @@ void log_config(uint16_t* data, int len)
     printf_P(log_op_config_string,current_eeprom_address);
 
     log_write(timestamp_mask | log_op_config);
-    
+
     // Config data is just saved as single entries with a qty preceeding it
     log_write(len);
     prog_char** current_message = log_config_strings;
@@ -204,7 +205,7 @@ void log_playback(void)
                 current_message = log_config_strings;
                 while (len--)
                     printf_P(*current_message++,log_read());
-#endif                
+#endif
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);
