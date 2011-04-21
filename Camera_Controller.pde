@@ -149,7 +149,7 @@ void setup(void)
     uint16_t* config_ptr = config_list;
     *config_ptr++ = 1; // config data version #
     *config_ptr++ = freeMemory();
-    *config_ptr++ = use_piezo;
+    *config_ptr++ = (use_piezo?B1:0) | (use_focus?B10:0);
     *config_ptr++ = piezo_threshold;
     *config_ptr++ = piezo_samples;
     *config_ptr++ = num_camera_pulses;
@@ -157,6 +157,9 @@ void setup(void)
     *config_ptr++ = camera_pulse_width >> 16;
     *config_ptr++ = camera_pulse_gap & 0xffff;
     *config_ptr++ = camera_pulse_gap >> 16;
+    *config_ptr++ = focus_delay;
+    *config_ptr++ = camera_pulse_test_width;
+    *config_ptr++ = num_windows;
     log_config(config_list,config_ptr-config_list);
 
 #ifdef TEST_WINDOWS

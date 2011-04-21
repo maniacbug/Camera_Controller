@@ -44,14 +44,17 @@ char log_playback_end[] PROGMEM = "*** END LOG PLAYBACK ***\n\r";
 
 char log_config_0[] PROGMEM = "ver=%i ";
 char log_config_1[] PROGMEM = "mem=%i ";
-char log_config_2[] PROGMEM = "pz?=%i ";
+char log_config_2[] PROGMEM = "use=%i ";
 char log_config_3[] PROGMEM = "pz/thr=%i ";
 char log_config_4[] PROGMEM = "pz/sam=%i ";
 char log_config_5[] PROGMEM = "#pulse=%i ";
 char log_config_6[] PROGMEM = "pulse/wid/lo=%i ";
 char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";
 char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
-char log_config_9[] PROGMEM = "pulse/gap/hi=%i\n\r";
+char log_config_9[] PROGMEM = "pulse/gap/hi=%i ";
+char log_config_10[] PROGMEM = "focus/wid=%i ";
+char log_config_11[] PROGMEM = "test/wid=%i ";
+char log_config_12[] PROGMEM = "#win=%i\n\r";
 
 prog_char* log_config_strings[] =
 {
@@ -65,6 +68,9 @@ prog_char* log_config_strings[] =
     log_config_7,
     log_config_8,
     log_config_9,
+    log_config_10,
+    log_config_11,
+    log_config_12,
 };
 
 uint16_t current_eeprom_address = 0;
