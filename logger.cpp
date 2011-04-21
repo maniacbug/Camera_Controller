@@ -212,7 +212,7 @@ void log_playback(void)
                 current_message = log_config_strings;
                 while (len--)
                     printf_P(*current_message++,log_read());
-                print_P(PSTR("\n\r"));
+                printf_P(PSTR("\n\r"));
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);
