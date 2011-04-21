@@ -129,7 +129,8 @@ boolean window_open(void)
     int i = num_windows;
     while (i-- && !result)
     {
-        if ( now > windows[i].open.unixtime() && now < windows[i].close.unixtime() )
+        uint32_t go_time = windows[i].plane.unixtime() - listen_before_plane_time;
+        if ( now > go_time && now < windows[i].close.unixtime() )
         {
             result = true;
             break;
