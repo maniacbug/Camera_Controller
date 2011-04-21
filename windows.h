@@ -25,6 +25,7 @@ struct window_data
 };
 
 // Note that I can save 300 bytes by optimizing window_c to contain only static values and put them in progmem.
+// All I need is to get a unixtime when it's needed.
 struct window_c
 {
     DateTime open;
