@@ -188,6 +188,25 @@ void setup(void)
 
 /*************************************************************/
 
+void camera_pulses(void)
+{
+    int i = num_camera_pulses;
+    while (i--)
+    {
+        set_camera_pins(HIGH);
+        delay(camera_pulse_width);
+        set_camera_pins(LOW);
+        delay(camera_pulse_gap);
+    }
+}
+
+void test_pulses(void)
+{
+    set_camera_pins(HIGH);
+    delay(camera_pulse_test_width);
+    set_camera_pins(LOW);
+}
+
 void loop(void)
 {
     await_window_open();
@@ -205,15 +224,11 @@ void loop(void)
                 digitalWrite(focus_pin,HIGH);
                 delay(focus_delay);
             }
-
-            int i = num_camera_pulses;
-            while (i--)
-            {
-                set_camera_pins(HIGH);
-                delay(camera_pulse_width);
-                set_camera_pins(LOW);
-                delay(camera_pulse_gap);
-            }
+            
+            if ( test_switch_on() )
+                test_pulses();
+            else
+                camera_pulses();
 
             if (use_focus)
             {
