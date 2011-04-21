@@ -62,12 +62,12 @@ int num_windows = num_short_windows;
 window_c long_windows[] =
 {
     //          DATE     OPEN        PLANE       TIME
-    window_c (  3,27,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
-    window_c (  3,27,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
-    window_c (  3,28,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
-    window_c (  3,28,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
-    window_c (  3,29,11, 8,30, 0,AM, 8,40,00,AM, 9, 0, 0,AM ),
-    window_c (  3,29,11, 7, 0, 0,PM, 7,10,00,PM, 7,30, 0,PM ),
+    window_c (  4,20,11, 5,30, 0,AM, 6,40,00,AM, 9, 0, 0,AM ),
+    window_c (  4,20,11, 9, 0, 0,PM, 9,40,00,PM,10, 0, 0,PM ),
+    window_c (  4,21,11, 5,30, 0,AM, 6,40,00,AM, 9, 0, 0,AM ),
+    window_c (  4,21,11, 9, 0, 0,PM, 9,40,00,PM,10, 0, 0,PM ),
+    window_c (  4,22,11, 5,30, 0,AM, 6,40,00,AM, 9, 0, 0,AM ),
+    window_c (  4,22,11, 9, 0, 0,PM, 9,40,00,PM,10, 0, 0,PM ),
 };
 const int num_long_windows = sizeof(long_windows)/sizeof(window_c);
 
@@ -160,6 +160,7 @@ void setup(void)
     *config_ptr++ = focus_delay;
     *config_ptr++ = camera_pulse_test_width;
     *config_ptr++ = num_windows;
+    *config_ptr++ = listen_before_plane_time;
     log_config(config_list,config_ptr-config_list);
 
 #ifdef TEST_WINDOWS

@@ -102,13 +102,14 @@ void await_window_open(void)
         int i = num_windows;
         while (i-- && !done)
         {
-            if ( now > windows[i].open.unixtime() && now < windows[i].close.unixtime() )
+            uint32_t go_time = windows[i].plane.unixtime() - listen_before_plane_time;
+            if ( now > go_time && now < windows[i].close.unixtime() )
             {
                 done = true;
                 time_to_next_open = 0;
             }
-            else if ( now < windows[i].open.unixtime() )
-                time_to_next_open = min(windows[i].open.unixtime() - now,time_to_next_open);
+            else if ( now < go_time )
+                time_to_next_open = min(go_time - now,time_to_next_open);
         }
 
         // wait for a little while, either until the window is due to open or

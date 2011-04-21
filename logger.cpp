@@ -54,7 +54,8 @@ char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
 char log_config_9[] PROGMEM = "pulse/gap/hi=%i ";
 char log_config_10[] PROGMEM = "focus/wid=%i ";
 char log_config_11[] PROGMEM = "test/wid=%i ";
-char log_config_12[] PROGMEM = "#win=%i\n\r";
+char log_config_12[] PROGMEM = "#win=%i ";
+char log_config_13[] PROGMEM = "<plane=%i ";
 
 prog_char* log_config_strings[] =
 {
@@ -71,6 +72,7 @@ prog_char* log_config_strings[] =
     log_config_10,
     log_config_11,
     log_config_12,
+    log_config_13,
 };
 
 uint16_t current_eeprom_address = 0;
@@ -206,12 +208,11 @@ void log_playback(void)
                 break;
             case log_op_config:
                 printf_P(log_op_config_string,current_eeprom_address-2);
-#if 1
                 len = log_read();
                 current_message = log_config_strings;
                 while (len--)
                     printf_P(*current_message++,log_read());
-#endif
+                print_P(PSTR("\n\r"));
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);

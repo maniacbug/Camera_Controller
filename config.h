@@ -82,11 +82,14 @@ const int fake_piezo_off_at = 30; // seconds from start of sketch
 const int piezo_threshold = 300; // 0-1024, how loud the sound has to be before the cameras fire
 const int piezo_samples = 500; // Many samples to take and average out every time we test the piezo
 
+// How long to start listening prior to the 'plane' time, in seconds
+const uint32_t listen_before_plane_time = 2L * 60L; // 2 minutes
+
 // How long to test the camera pulse when test switch is closed
 const int camera_pulse_test_width = 3000;
 
 // How long to wait between checking whether we're in a launch period, in msec
-const int window_test_period = 200;
+const int window_test_period = 2000;
 
 // Launch windows
 
