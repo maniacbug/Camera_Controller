@@ -24,6 +24,7 @@ struct window_data
     int close[4];
 };
 
+// Note that I can save 300 bytes by optimizing window_c to contain only static values and put them in progmem.
 struct window_c
 {
     DateTime open;
