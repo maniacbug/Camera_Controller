@@ -61,7 +61,7 @@ int num_windows = num_short_windows;
 
 window_c long_windows[] =
 {
-    //          DATE     OPEN        PLANE       TIME
+    //          DATE     OPEN        PLANE       CLOSE
     window_c (  4,20,11, 5,30, 0,AM, 6,40,00,AM, 9, 0, 0,AM ),
     window_c (  4,20,11, 9, 0, 0,PM, 9,40,00,PM,10, 0, 0,PM ),
     window_c (  4,21,11, 5,30, 0,AM, 6,40,00,AM, 9, 0, 0,AM ),
