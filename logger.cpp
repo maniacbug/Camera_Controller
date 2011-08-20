@@ -190,7 +190,7 @@ void log_playback(void)
     // Read the initial value.  If the first value is NOT a 'begin', then we don't
     // even need to play back because this is not a valid log stream.
     uint16_t value = log_read();
-    boolean done = ( value != (timestamp_mask | log_op_begin) );
+    bool done = ( value != (timestamp_mask | log_op_begin) );
     while (!done)
     {
         // If the timestamp bits are full, then this is a command, not a status log

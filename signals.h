@@ -37,7 +37,7 @@ extern void signals_begin(void);
  *
  * @return true if the test switch is engaged
  */
-extern boolean test_switch_on(void);
+extern bool test_switch_on(void);
 
 /**
  * Await the opening of the window
@@ -51,14 +51,14 @@ extern void await_window_open(void);
  *
  * @return true if the window is currently open
  */
-extern boolean window_open(void);
+extern bool window_open(void);
 
 /**
  * Is the sound on?
  *
  * @return true if the sound is being heard continuously
  */
-extern boolean sound_is_on(void);
+extern bool sound_is_on(void);
 
 /**
  * Set camera pins

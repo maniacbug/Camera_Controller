@@ -32,7 +32,7 @@
 
 #ifdef SKY_CAMERA
 
-const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
+const bool use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
 
 // Focus pin
 const bool use_focus = true;
@@ -46,7 +46,7 @@ const unsigned long camera_pulse_gap = 0;
 
 #ifdef VIDEO_CAMERA
 
-const boolean use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
+const bool use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
 
 // Focus pin
 const bool use_focus = false;
@@ -61,7 +61,7 @@ const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 2
 
 #ifdef TEST_CAMERA
 
-const boolean use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
+const bool use_piezo = true; // whether we need to wait for the sound (true) or should just skip that step (false)
 
 // Focus pin
 const bool use_focus = true;

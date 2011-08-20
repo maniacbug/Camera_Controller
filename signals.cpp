@@ -48,7 +48,7 @@ const int num_windows = sizeof(windows)/sizeof(window);
 
 unsigned long fake_piezo_msec_to_on = fake_piezo_on_at * 1000L;
 unsigned long fake_piezo_msec_to_off = fake_piezo_off_at * 1000L;
-volatile boolean fake_piezo_on = false;
+volatile bool fake_piezo_on = false;
 
 void fake_piezo_isr(void)
 {
@@ -79,14 +79,14 @@ void signals_begin(void)
 
 }
 
-boolean test_switch_on(void)
+bool test_switch_on(void)
 {
     return ( digitalRead(test_sw_pin) == switch_closed_value );
 }
 
 void await_window_open(void)
 {
-    boolean done = false;
+    bool done = false;
 
     // Keep doing this until we actually get in a window
     while (!done)
@@ -119,10 +119,10 @@ void await_window_open(void)
     }
 }
 
-boolean window_open(void)
+bool window_open(void)
 {
     // If the test mode switch is fired, the window is forced open
-    boolean result = test_switch_on();
+    bool result = test_switch_on();
 
     // loop through all the windows to see if we're open now.
     uint32_t now = RTC.now().unixtime();
@@ -146,7 +146,7 @@ void start_listening(void)
 }
 
 
-boolean sound_is_on(void)
+bool sound_is_on(void)
 {
 #ifdef FAKE_PIEZO
     return fake_piezo_on;
@@ -184,8 +184,8 @@ void set_camera_pins(int state)
 
 void set_status(status_e status)
 {
-    static boolean window_open;
-    static boolean cameras_firing;
+    static bool window_open;
+    static bool cameras_firing;
 
     switch (status)
     {
