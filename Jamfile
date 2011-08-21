@@ -1,8 +1,8 @@
 PROJECT_NAME 	= $(PWD:B) ;
 PROJECT_DIR 	= . ;
-PROJECT_LIBS = SPI Wire RTClib MemoryFree EEPROM ;
+PROJECT_LIBS 	= SPI Wire RTClib MemoryFree EEPROM ;
 
-OUT_DIR = ojam ;
+OUT_DIR 	= ojam ;
 F_CPU 		= 16000000 ;
 MCU             = atmega328p ;
 PORTS           = /dev/tty.usbserial-A600eHIs /dev/tty.usbserial-A40081RP /dev/tty.usbserial-A9007LmI ;
@@ -206,14 +206,59 @@ AvrUpload p4 : /dev/tty.usbserial-A40081RP : $(OUT).hex ;
 AvrUpload p9 : /dev/tty.usbserial-A9007LmI : $(OUT).hex ;
 
 #
+# Native
+#
+
+OUT_DIR_NATIVE 	= out_native ;
+OUT_NATIVE      = $(OUT_DIR_NATIVE)/$(PROJECT_NAME) ;
+NATIVE_MODULES  = [ GLOB native : *.cpp ] $(SKETCH_LIB)/RTClib/RTClib.cpp  ;
+HDRS = native $(HDRS) ;
+DEFINES += NATIVE HAL=1 ;
+
+rule NativePde
+{
+  local _CPP = $(OUT_DIR_NATIVE)/$(_I:B).cpp ;
+  Pde $(_CPP) : $(>) ;
+  C++ $(<) : $(_CPP) ;
+}
+
+rule UserObject
+{
+  switch $(>)
+  {
+  case *.pde : NativePde $(<) : $(>) ;
+  }
+} 
+
+rule Objects
+{
+  for _I in $(<) 
+  {
+    local _O = $(OUT_DIR_NATIVE)/$(_I:B).o ;
+    Object $(_O) : $(_I) ;
+  }
+}
+
+rule Main
+{
+  MainFromObjects $(<) : $(OUT_DIR_NATIVE)/$(>:B).o ;
+  Objects $(>) ;
+}
+
+MkDir $(OUT_DIR_NATIVE) ;
+Depends $(OUT_NATIVE) : $(OUT_DIR_NATIVE) ;
+Main $(OUT_NATIVE) : $(NATIVE_MODULES) $(PROJECT_MODULES) ;
+
+Depends native : $(OUT_NATIVE) ;
+
+#
 # Specialized rules for this project's intermediate files
 #
 
 rule LaunchWindow
 {
-  Always $(<) ;
+#  Always $(<) ;
   Depends $(<) : $(>) ;
-  Depends all : $(<) ;
 }
 
 actions LaunchWindow

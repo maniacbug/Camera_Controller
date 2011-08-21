@@ -14,7 +14,6 @@
  */
 
 #include <WProgram.h>
-#include <avr/pgmspace.h>
 #include <RTClib.h>
 #include <limits.h>
 #include "hardware.h"
@@ -23,6 +22,15 @@
 #include "debug.h"
 #include "windows.h"
 #include "logger.h"
+
+#define HAL 1
+#if HAL
+#include "hal.h"
+#endif
+
+#ifndef NATIVE
+#include <avr/pgmspace.h>
+#endif
 
 #ifdef FAKE_CLOCK
 typedef unsigned long time_t;
@@ -81,7 +89,11 @@ void signals_begin(void)
 
 bool test_switch_on(void)
 {
+#if HAL
+    return hal_test_sw_closed(); 
+#else
     return ( digitalRead(test_sw_pin) == switch_closed_value );
+#endif
 }
 
 void await_window_open(void)
@@ -94,7 +106,11 @@ void await_window_open(void)
         // If the test mode switch is fired, the window is forced open
         done = test_switch_on();
 
+#if HAL
+        uint32_t now = hal_rtc_now().unixtime();
+#else
         uint32_t now = RTC.now().unixtime();
+#endif
         uint32_t time_to_next_open = ULONG_MAX;
 
         // Loop through the windows, see if we're in a window or if now,
@@ -115,7 +131,11 @@ void await_window_open(void)
         // wait for a little while, either until the window is due to open or
         // the longest amount of time has passed before we should look again
         unsigned long wait_length = min(time_to_next_open,window_test_period / 1000);
-        delay( wait_length * 1000L );
+#if HAL
+	hal_wait_seconds( wait_length );
+#else
+	delay( wait_length * 1000L );
+#endif
     }
 }
 
@@ -125,7 +145,11 @@ bool window_open(void)
     bool result = test_switch_on();
 
     // loop through all the windows to see if we're open now.
+#if HAL
+    uint32_t now = hal_rtc_now().unixtime();
+#else
     uint32_t now = RTC.now().unixtime();
+#endif
     int i = num_windows;
     while (i-- && !result)
     {
@@ -166,21 +190,29 @@ bool sound_is_on(void)
         items = 20;
     }
 #endif
+#if HAL
+    long value = hal_read_piezo();
+#else
     long reading = 0;
     int n = piezo_samples;
     while (n--)
         reading += analogRead(piezo_pin);
     long value = reading / piezo_samples;
+#endif
 
     return ( value > piezo_threshold );
 }
 
+#if HAL
+// HAL entirely replaces this
+#else
 void set_camera_pins(int state)
 {
     int i = num_camera_pins;
     while (i--)
         digitalWrite(camera_pin[i],state);
 }
+#endif
 
 void set_status(status_e status)
 {
@@ -202,17 +234,22 @@ void set_status(status_e status)
         cameras_firing = true;
         break;
     }
+#if HAL
+    hal_status_led_set(0,test_switch_on()?led_on_value:led_off_value);
+    hal_status_led_set(1,window_open?led_on_value:led_off_value);
+    hal_status_led_set(2,cameras_firing?led_on_value:led_off_value);
+#else
     digitalWrite(status_led_pin[0],test_switch_on()?led_on_value:led_off_value);
     digitalWrite(status_led_pin[1],window_open?led_on_value:led_off_value);
     digitalWrite(status_led_pin[2],cameras_firing?led_on_value:led_off_value);
-
+#endif
     uint8_t status_bits = 0;
     if ( test_switch_on() )
-        status_bits |= B100;
+        status_bits |= 0b100;
     if ( window_open )
-        status_bits |= B10;
+        status_bits |= 0b10;
     if ( cameras_firing )
-        status_bits |= B1;
+        status_bits |= 0b1;
 
     log_status( status_bits );
 }
@@ -230,27 +267,41 @@ void listen_for_serial_configuration(void)
     uint8_t inbuffer[25];
     uint8_t* curbuf = inbuffer;
     uint8_t* endbuf = inbuffer + 24;
-    DateTime now, adjusted;
+#if HAL
+    DateTime now = hal_rtc_now();
+#else
+    DateTime now = RTC.now();
+#endif
+    DateTime adjusted;
     char buf[25];
     while ( test_switch_on() )
     {
-        while (Serial.available() && curbuf < endbuf)
+#if HAL
+	while (hal_inchar_ready() && curbuf < endbuf)
+        {
+            int c = hal_inchar_read();
+#else
+	while (Serial.available() && curbuf < endbuf)
         {
             int c = Serial.read();
-            switch (c)
+#endif
+	    switch (c)
             {
             case 'T':
                 *curbuf = 0;
                 curbuf = inbuffer;
 
-                now = RTC.now();
                 adjusted = DateTime(
                                now.year(),now.month(),now.day(),
                                10 * (inbuffer[0] - '0') + inbuffer[1] - '0',
                                10 * (inbuffer[2] - '0') + inbuffer[3] - '0',
                                10 * (inbuffer[4] - '0') + inbuffer[5] - '0'
                            );
+#if HAL
+                hal_rtc_set(adjusted);
+#else
                 RTC.adjust(adjusted);
+#endif
                 log_set_time();
 
                 break;
@@ -258,14 +309,17 @@ void listen_for_serial_configuration(void)
                 *curbuf = 0;
                 curbuf = inbuffer;
 
-                now = RTC.now();
                 adjusted = DateTime(
                                10 * (inbuffer[0] - '0') + inbuffer[1] - '0',
                                10 * (inbuffer[2] - '0') + inbuffer[3] - '0',
                                10 * (inbuffer[4] - '0') + inbuffer[5] - '0',
                                now.hour(),now.minute(),now.second()
                            );
+#if HAL
+                hal_rtc_set(adjusted);
+#else
                 RTC.adjust(adjusted);
+#endif
                 log_set_time();
 
                 break;
@@ -281,4 +335,4 @@ void listen_for_serial_configuration(void)
         }
     }
 }
-// vim:ci:sw=4 sts=4 ft=cpp
+// vim:cin:ai:sw=4 sts=4 ft=cpp

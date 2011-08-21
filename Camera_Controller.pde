@@ -30,10 +30,16 @@
 #include <MemoryFree.h>
 #include <EEPROM.h>
 #include "debug.h"
-#include "hardware.h"
 #include "signals.h"
 #include "config.h"
 #include "logger.h"
+
+#define HAL 1
+#if HAL
+#include "hal.h"
+#else
+#include "hardware.h"
+#endif
 
 /*************************************************************/
 
@@ -84,38 +90,36 @@ int num_windows = num_sts134_windows;
 
 /*************************************************************/
 
-// Enable 'printf'
-
-int Serial_putc( char c, FILE *t)
-{
-    Serial.write( c );
-}
-
-void Printf_setup(void)
-{
-    fdevopen( &Serial_putc, 0);
-}
-
-/*************************************************************/
-
 RTC_DS1307 RTC;
 
 void setup(void)
 {
+    int i;
+    
     // Setup switch
+#if HAL
+    hal_test_sw_begin();
+#else
     pinMode(test_sw_pin,INPUT);
     digitalWrite(test_sw_pin,HIGH);
+#endif
 
     // Setup status LED's
-    int i;
+#if HAL
+    hal_status_leds_begin();
+#else
     i = num_status_led_pins;
     while (i--)
     {
         pinMode(status_led_pin[i],OUTPUT);
         digitalWrite(status_led_pin[i],led_on_value);
     }
+#endif
 
     // Setup camera pins
+#if HAL
+    hal_camera_begin();
+#else
     i = num_camera_pins;
     while (i--)
     {
@@ -124,13 +128,23 @@ void setup(void)
     }
     pinMode(focus_pin,OUTPUT);
     digitalWrite(focus_pin,LOW);
+#endif
 
     // Setup RTC
+#if HAL
+    hal_rtc_begin();
+#else
     Wire.begin();
     RTC.begin();
+#endif
 
+#if HAL
+    hal_serial_begin();
+#else
     Serial.begin(57600);
     Printf_setup();
+#endif
+
     printf_P(PSTR("Camera_Controller_3\r\nSERIAL_DEBUG enabled\r\n"));
 
     // Always playback the old logs
@@ -149,7 +163,7 @@ void setup(void)
     uint16_t* config_ptr = config_list;
     *config_ptr++ = 1; // config data version #
     *config_ptr++ = freeMemory();
-    *config_ptr++ = (use_piezo?B1:0) | (use_focus?B10:0);
+    *config_ptr++ = (use_piezo?0b1:0) | (use_focus?0b10:0);
     *config_ptr++ = piezo_threshold;
     *config_ptr++ = piezo_samples;
     *config_ptr++ = num_camera_pulses;
@@ -197,18 +211,34 @@ void camera_pulses(void)
     int i = num_camera_pulses;
     while (i--)
     {
-        set_camera_pins(HIGH);
+#if HAL
+    	hal_camera_set(HIGH,camera_pulse_width);
+#else
+	set_camera_pins(HIGH);
         delay(camera_pulse_width);
+#endif
+#if HAL
+    	hal_camera_set(LOW,camera_pulse_gap);
+#else
         set_camera_pins(LOW);
         delay(camera_pulse_gap);
+#endif
     }
 }
 
 void test_pulses(void)
 {
+#if HAL
+    hal_camera_set(HIGH,camera_pulse_test_width);
+#else
     set_camera_pins(HIGH);
     delay(camera_pulse_test_width);
+#endif
+#if HAL
+    hal_camera_set(LOW,0);
+#else
     set_camera_pins(LOW);
+#endif
 }
 
 void loop(void)
@@ -225,8 +255,12 @@ void loop(void)
 
             if (use_focus)
             {
+#if HAL
+		hal_focus_set(HIGH,focus_delay);
+#else
                 digitalWrite(focus_pin,HIGH);
                 delay(focus_delay);
+#endif
             }
             
             if ( test_switch_on() )
@@ -236,8 +270,12 @@ void loop(void)
 
             if (use_focus)
             {
+#if HAL
+		hal_focus_set(LOW,0);
+#else
                 digitalWrite(focus_pin,LOW);
-            }
+#endif
+	    }
 
             set_status(cameras_are_waiting);
             start_listening();
@@ -246,4 +284,4 @@ void loop(void)
     set_status(window_is_closed);
 }
 
-// vim:ci:sw=4 sts=4 ft=cpp
+// vim:ai:cin:sw=4 sts=4 ft=cpp

@@ -8,10 +8,16 @@
 
 #include <EEPROM.h>
 #include <WProgram.h>
-#include <avr/pgmspace.h>
 #include "hardware.h"
 #include "debug.h"
 #include "logger.h"
+#include <avr/pgmspace.h>
+
+#if HAL
+#include "hal.h"
+#else
+#include "hardware.h"
+#endif
 
 /**
  * @file logger.cpp
@@ -91,7 +97,11 @@ uint8_t log_read_byte(void);
 void log_status(uint8_t status)
 {
     status &= status_mask;
+#if HAL
+    DateTime now = hal_rtc_now();
+#else
     DateTime now = RTC.now();
+#endif
     uint32_t log_entry_time = now.unixtime();
 
     // if too much time has passed to represent the time since last log
@@ -108,9 +118,9 @@ void log_status(uint8_t status)
     printf_P(log_status_string,
              current_eeprom_address,
              now.toString(timeprintbuffer,25),
-             (status & B100)?"HIGH":"LOW",
-             (status & B10)?"HIGH":"LOW",
-             (status & B1)?"HIGH":"LOW"
+             (status & 0b100)?"HIGH":"LOW",
+             (status & 0b10)?"HIGH":"LOW",
+             (status & 0b1)?"HIGH":"LOW"
             );
 
     log_write( ( timestamp << num_status_bits ) | status);
@@ -127,7 +137,11 @@ void log_set_time(void)
 // Log the current time
 void log_current_time(void)
 {
+#if HAL
+    DateTime now = hal_rtc_now();
+#else
     DateTime now = RTC.now();
+#endif
     last_log_entry_time = now.unixtime();
 
     printf_P(log_op_fulltime_string,current_eeprom_address,now.toString(timeprintbuffer,25));
@@ -236,9 +250,9 @@ void log_playback(void)
             uint8_t status = value & status_mask;
             printf_P(log_status_string,current_eeprom_address-2,
                      DateTime(last_log_entry_time).toString(timeprintbuffer,25),
-                     (status & B100)?"HIGH":"LOW",
-                     (status & B10)?"HIGH":"LOW",
-                     (status & B1)?"HIGH":"LOW"
+                     (status & 0b100)?"HIGH":"LOW",
+                     (status & 0b10)?"HIGH":"LOW",
+                     (status & 0b1)?"HIGH":"LOW"
                     );
         }
         value = log_read();

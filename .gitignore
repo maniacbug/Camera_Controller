@@ -2,3 +2,6 @@
 log.txt
 *.orig
 *.bak
+ojam/
+out_native/
+version.h
