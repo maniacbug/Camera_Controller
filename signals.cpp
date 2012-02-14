@@ -13,7 +13,12 @@
  * "signals" thrown or received by the various hardware components.
  */
 
+#if ARDUINO < 100
 #include <WProgram.h>
+#else
+#include <Arduino.h>
+#endif
+
 #include <avr/pgmspace.h>
 #include <RTClib.h>
 #include <limits.h>

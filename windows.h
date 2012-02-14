@@ -9,7 +9,6 @@
 #ifndef __WINDOWS_H__
 #define __WINDOWS_H__
 
-#include <WProgram.h>
 #include <RTClib.h>
 
 enum { AM = 0, PM = 12 };

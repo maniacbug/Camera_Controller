@@ -15,7 +15,6 @@
 #ifndef __HARDWARE_H__
 #define __HARDWARE_H__
 
-#include <WProgram.h>
 #include <RTClib.h>
 #include <RTC_DS1307.h>
 

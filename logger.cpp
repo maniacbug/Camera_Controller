@@ -6,8 +6,13 @@
  version 2 as published by the Free Software Foundation.
  */
 
-#include <EEPROM.h>
+#if ARDUINO < 100
 #include <WProgram.h>
+#else
+#include <Arduino.h>
+#endif
+
+#include <EEPROM.h>
 #include <avr/pgmspace.h>
 #include "hardware.h"
 #include "debug.h"
@@ -57,7 +62,7 @@ char log_config_11[] PROGMEM = "test/wid=%i ";
 char log_config_12[] PROGMEM = "#win=%i ";
 char log_config_13[] PROGMEM = "<plane=%i ";
 
-prog_char* log_config_strings[] =
+const char* log_config_strings[] =
 {
     log_config_0,
     log_config_1,
@@ -152,7 +157,7 @@ void log_config(uint16_t* data, int len)
 
     // Config data is just saved as single entries with a qty preceeding it
     log_write(len);
-    prog_char** current_message = log_config_strings;
+    const char** current_message = log_config_strings;
     while (len--)
     {
         printf_P(*current_message++,*data);
@@ -173,19 +178,23 @@ void log_begin(void)
     log_current_time();
 }
 
+char fmt_log_cleared[] PROGMEM = "%04i Log cleared\n\r";
+
 void log_clear(void)
 {
     current_eeprom_address = 0;
-    printf_P(PSTR("%04i Log cleared\n\r"),current_eeprom_address);
+    printf_P(fmt_log_cleared,current_eeprom_address);
     log_begin();
 }
+
+char crlf[] PROGMEM = "\n\r";
 
 void log_playback(void)
 {
     current_eeprom_address = 0;
     last_log_entry_time = 0;
     int len;
-    prog_char** current_message;
+    const char** current_message;
 
     // Read the initial value.  If the first value is NOT a 'begin', then we don't
     // even need to play back because this is not a valid log stream.
@@ -212,7 +221,7 @@ void log_playback(void)
                 current_message = log_config_strings;
                 while (len--)
                     printf_P(*current_message++,log_read());
-                printf_P(PSTR("\n\r"));
+                printf_P(crlf);
                 break;
             case log_op_begin:
                 printf_P(log_playback_begin);
