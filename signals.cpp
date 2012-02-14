@@ -206,6 +206,8 @@ void set_status(status_e status)
     case cameras_are_firing:
         cameras_firing = true;
         break;
+    case no_activity:
+        break;
     }
     digitalWrite(status_led_pin[0],test_switch_on()?led_on_value:led_off_value);
     digitalWrite(status_led_pin[1],window_open?led_on_value:led_off_value);
@@ -236,7 +238,7 @@ void listen_for_serial_configuration(void)
     uint8_t* curbuf = inbuffer;
     uint8_t* endbuf = inbuffer + 24;
     DateTime now, adjusted;
-    char buf[25];
+    //char buf[25];
     while ( test_switch_on() )
     {
         while (Serial.available() && curbuf < endbuf)

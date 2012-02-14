@@ -86,9 +86,10 @@ int num_windows = num_sts134_windows;
 
 // Enable 'printf'
 
-int Serial_putc( char c, FILE *t)
+int Serial_putc( char c, FILE *)
 {
     Serial.write( c );
+    return c;
 }
 
 void Printf_setup(void)

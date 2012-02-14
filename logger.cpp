@@ -283,7 +283,7 @@ uint8_t log_read_byte(void)
 
 uint16_t log_read(void)
 {
-    uint16_t read_address = current_eeprom_address;
+    //uint16_t read_address = current_eeprom_address;
     uint16_t result = EEPROM.read(current_eeprom_address++);
     result |= EEPROM.read(current_eeprom_address++) << 8;
 
@@ -294,7 +294,7 @@ uint16_t log_read(void)
 
 uint32_t log_read_32(void)
 {
-    uint16_t read_address = current_eeprom_address;
+    //uint16_t read_address = current_eeprom_address;
 
     uint32_t result = log_read();
     result |= (uint32_t)log_read() << 16;
