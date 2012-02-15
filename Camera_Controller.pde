@@ -208,7 +208,13 @@ void camera_pulses(void)
 void test_pulses(void)
 {
     set_camera_pins(HIGH);
-    delay(camera_pulse_test_width);
+    uint32_t started_at = millis();
+    while ( millis() - started_at < camera_pulse_test_width )
+	{
+	    Serial.print('.');
+	    delay(100);
+	}
+    Serial.println();
     set_camera_pins(LOW);
 }
 
@@ -220,17 +226,21 @@ void loop(void)
     start_listening();
     while ( window_open() || test_switch_on() )
     {
+	bool test_on = test_switch_on();
+
         if ( sound_is_on() || ! use_piezo )
         {
             set_status(cameras_are_firing);
 
             if (use_focus)
             {
+		printf_P(PSTR("FOCUS\r\n"));
                 digitalWrite(focus_pin,HIGH);
                 delay(focus_delay);
+		printf_P(PSTR("OK\r\n"));
             }
             
-            if ( test_switch_on() )
+            if ( test_on )
                 test_pulses();
             else
                 camera_pulses();
