@@ -36,31 +36,31 @@ const uint16_t log_op_done = 3;
 const uint16_t log_op_begin = 4;
 const uint16_t log_op_settime = 5;
 
-char log_status_string[] PROGMEM = "%04u %s: Test %s Window %s Cameras %s\n\r";
-char log_op_fulltime_string[] PROGMEM = "%04u %s: Current time\n\r";
+const char log_status_string[] PROGMEM = "%04u %s: Test %s Window %s Cameras %s\n\r";
+const char log_op_fulltime_string[] PROGMEM = "%04u %s: Current time\n\r";
 //char log_op_config_string[] PROGMEM = "Configuration\n\r\tMemory: %i\r\n\tpiezo: %i thr=%i pulse=%i\r\ncamera pulses: %i wid=%lu gap=%lu\n\r";
-char log_op_config_string[] PROGMEM = "%04u Configuration: ";
-char log_op_done_string[] PROGMEM = "%04u OK\n\r";
-char log_op_begin_string[] PROGMEM = "%04u New run\n\r";
-char log_op_settime_string[] PROGMEM = "%04u Setting time\n\r";
+const char log_op_config_string[] PROGMEM = "%04u Configuration: ";
+const char log_op_done_string[] PROGMEM = "%04u OK\n\r";
+const char log_op_begin_string[] PROGMEM = "%04u New run\n\r";
+const char log_op_settime_string[] PROGMEM = "%04u Setting time\n\r";
 
-char log_playback_begin[] PROGMEM = "*** BEGIN LOG PLAYBACK ***\n\r";
-char log_playback_end[] PROGMEM = "*** END LOG PLAYBACK ***\n\r";
+const char log_playback_begin[] PROGMEM = "*** BEGIN LOG PLAYBACK ***\n\r";
+const char log_playback_end[] PROGMEM = "*** END LOG PLAYBACK ***\n\r";
 
-char log_config_0[] PROGMEM = "ver=%i ";
-char log_config_1[] PROGMEM = "mem=%i ";
-char log_config_2[] PROGMEM = "use=%i ";
-char log_config_3[] PROGMEM = "pz/thr=%i ";
-char log_config_4[] PROGMEM = "pz/sam=%i ";
-char log_config_5[] PROGMEM = "#pulse=%i ";
-char log_config_6[] PROGMEM = "pulse/wid/lo=%i ";
-char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";
-char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
-char log_config_9[] PROGMEM = "pulse/gap/hi=%i ";
-char log_config_10[] PROGMEM = "focus/wid=%i ";
-char log_config_11[] PROGMEM = "test/wid=%i ";
-char log_config_12[] PROGMEM = "#win=%i ";
-char log_config_13[] PROGMEM = "<plane=%i ";
+const char log_config_0[] PROGMEM = "ver=%i ";
+const char log_config_1[] PROGMEM = "mem=%i ";
+const char log_config_2[] PROGMEM = "use=%i ";
+const char log_config_3[] PROGMEM = "pz/thr=%i ";
+const char log_config_4[] PROGMEM = "pz/sam=%i ";
+const char log_config_5[] PROGMEM = "#pulse=%i ";
+const char log_config_6[] PROGMEM = "pulse/wid/lo=%i ";
+const char log_config_7[] PROGMEM = "pulse/wid/hi=%i ";
+const char log_config_8[] PROGMEM = "pulse/gap/lo=%i ";
+const char log_config_9[] PROGMEM = "pulse/gap/hi=%i ";
+const char log_config_10[] PROGMEM = "focus/wid=%i ";
+const char log_config_11[] PROGMEM = "test/wid=%i ";
+const char log_config_12[] PROGMEM = "#win=%i ";
+const char log_config_13[] PROGMEM = "<plane=%i ";
 
 const char* log_config_strings[] =
 {
@@ -178,7 +178,7 @@ void log_begin(void)
     log_current_time();
 }
 
-char fmt_log_cleared[] PROGMEM = "%04i Log cleared\n\r";
+const char fmt_log_cleared[] PROGMEM = "%04i Log cleared\n\r";
 
 void log_clear(void)
 {
@@ -187,7 +187,7 @@ void log_clear(void)
     log_begin();
 }
 
-char crlf[] PROGMEM = "\n\r";
+const char crlf[] PROGMEM = "\n\r";
 
 void log_playback(void)
 {
