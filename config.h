@@ -28,7 +28,8 @@
 
 #undef SKY_CAMERA
 #undef VIDEO_CAMERA
-#define TEST_CAMERA
+#define SKY_GH2_CAMERA
+#undef TEST_CAMERA
 
 #ifdef SKY_CAMERA
 
@@ -44,6 +45,20 @@ const unsigned long camera_pulse_width = 1000L*60L*20L; // 20 minutes
 const unsigned long camera_pulse_gap = 0;
 #endif
 
+#ifdef SKY_GH2_CAMERA
+
+const bool use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
+
+// Focus pin
+const bool use_focus = true;
+const int focus_delay = 1000; // Msec to hold focus high before shooting
+
+// Size of camera pulses
+const int num_camera_pulses = 2;
+const unsigned long camera_pulse_width = 500;
+const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 20 minutes!
+#endif
+
 #ifdef VIDEO_CAMERA
 
 const bool use_piezo = false; // whether we need to wait for the sound (true) or should just skip that step (false)
@@ -53,7 +68,7 @@ const bool use_focus = false;
 const int focus_delay = 500; // Msec to hold focus high before shooting
 
 // Size of camera pulses
-const int num_camera_pulses = 1;
+const int num_camera_pulses = 2;
 const unsigned long camera_pulse_width = 500;
 const unsigned long camera_pulse_gap = 1000L*60L*20L; // don't pulse again for 20 minutes!
 
@@ -86,7 +101,7 @@ const int piezo_samples = 500; // Many samples to take and average out every tim
 const uint32_t listen_before_plane_time = 2L * 60L; // 2 minutes
 
 // How long to test the camera pulse when test switch is closed
-const int camera_pulse_test_width = 3000;
+const uint32_t camera_pulse_test_width = 5000UL;
 
 // How long to wait between checking whether we're in a launch period, in msec
 const int window_test_period = 2000;
